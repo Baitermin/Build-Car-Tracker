@@ -1,5 +1,5 @@
 const DATA_URL = 'data/products.json';
-const LIVERY_IMAGE_URL = 'data/livery-image.txt';
+const LIVERY_IMAGE_URL = 'assets/products/baitermin-livery-preview.png';
 const state = {
   products: [],
   filter: 'Alle',
@@ -109,10 +109,9 @@ async function init(){
     const data=await res.json();
     state.products=data.products;
     if(liveryRes?.ok){
-      const liveryData=(await liveryRes.text()).trim();
       const livery=state.products.find(p=>p.id==='livery');
-      if(livery && liveryData.startsWith('data:image/')){
-        livery.image={...(livery.image||{}),url:liveryData,source:'BAITERMIN render',fit:'cover',background:'dark',padding:0,position:'center center'};
+      if(livery){
+        livery.image={...(livery.image||{}),url:LIVERY_IMAGE_URL,source:'BAITERMIN render',fit:'cover',background:'dark',padding:0,position:'center center'};
       }
     }
     document.querySelector('#updated').textContent=`Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
