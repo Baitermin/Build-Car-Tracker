@@ -111,7 +111,7 @@ async function init(){
     if(liveryRes?.ok){
       const livery=state.products.find(p=>p.id==='livery');
       if(livery){
-        livery.image={...(livery.image||{}),url:LIVERY_IMAGE_URL,source:'BAITERMIN render',fit:'cover',background:'dark',padding:0,position:'center center'};
+        livery.image={...(livery.image||{}),url:LIVERY_IMAGE_URL,source:'BAITERMIN render',fit:'contain',background:'dark',padding:0,position:'center center'};
       }
     }
     document.querySelector('#updated').textContent=`Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
