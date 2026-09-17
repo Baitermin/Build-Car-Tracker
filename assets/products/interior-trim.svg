@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12151c"/><stop offset="1" stop-color="#08090c"/></linearGradient><radialGradient id="r" cx=".75" cy=".15" r=".9"><stop stop-color="#4b3920" stop-opacity=".6"/><stop offset="1" stop-color="#4b3920" stop-opacity="0"/></radialGradient></defs>
+    <rect width="1200" height="800" fill="url(#g)"/><rect width="1200" height="800" fill="url(#r)"/>
+    <text x="70" y="90" fill="#e0b766" font-family="Arial" font-size="24" font-weight="700" letter-spacing="6">BAITERMIN • FINAL TOUCH</text>
+    <g transform="translate(170 260)"><path d="M0 120h840l-48 44H64z" fill="#20252d"/><path d="M68 72h605l-44 40H24z" fill="#0f141a"/><path d="M652 0h188l-48 42H605z" fill="#1a1f26"/><path d="M0 120h840" stroke="#b78942" stroke-width="4" opacity=".8"/><path d="M68 72h605" stroke="#b78942" stroke-width="4" opacity=".8"/></g>
+    <text x="70" y="650" fill="#f5f5f2" font-family="Arial" font-size="72" font-weight="800">CARBON-LOOK TRIM</text>
+    <text x="70" y="710" fill="#9ea3ad" font-family="Arial" font-size="30" letter-spacing="5">INTERIØR • DASH / DOORS</text>
+  </svg>
