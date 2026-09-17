@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12151c"/><stop offset="1" stop-color="#08090c"/></linearGradient><radialGradient id="r" cx=".75" cy=".15" r=".9"><stop stop-color="#4b3920" stop-opacity=".6"/><stop offset="1" stop-color="#4b3920" stop-opacity="0"/></radialGradient></defs>
+    <rect width="1200" height="800" fill="url(#g)"/><rect width="1200" height="800" fill="url(#r)"/>
+    <text x="70" y="90" fill="#e0b766" font-family="Arial" font-size="24" font-weight="700" letter-spacing="6">BAITERMIN • FINAL TOUCH</text>
+    <path d="M240 470H960" stroke="#b78942" stroke-width="24" stroke-linecap="round"/><path d="M300 470l120-120" stroke="#cc4c44" stroke-width="24" stroke-linecap="round"/><path d="M900 470L780 350" stroke="#cc4c44" stroke-width="24" stroke-linecap="round"/><circle cx="240" cy="470" r="26" fill="#f4f4f2"/><circle cx="960" cy="470" r="26" fill="#f4f4f2"/>
+    <text x="70" y="650" fill="#f5f5f2" font-family="Arial" font-size="72" font-weight="800">V-BRACE</text>
+    <text x="70" y="710" fill="#9ea3ad" font-family="Arial" font-size="30" letter-spacing="5">MOTORRUM • BRONZE/GOLD ACCENT</text>
+  </svg>
