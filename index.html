@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090a0d" />
+  <title>BAITERMIN Build Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">BMW F20 LCI • BAITERMIN BUILD</p>
+      <h1>Build Tracker</h1>
+      <p class="sub">3 tilbud pr. del, laveste pris automatisk fremhævet, købte dele gemmes på din enhed.</p>
+    </div>
+    <div class="updated" id="updated">Opdateret —</div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Budgetoversigt">
+      <article><span>Laveste total</span><strong id="totalAll">—</strong><small>alle aktive dele</small></article>
+      <article><span>Købt</span><strong id="totalBought">—</strong><small>markerede dele</small></article>
+      <article class="accent"><span>Tilbage</span><strong id="totalRemaining">—</strong><small>laveste aktuelle priser</small></article>
+      <article><span>Fremdrift</span><strong id="progress">—</strong><small id="progressDetail">—</small></article>
+    </section>
+
+    <section class="controls">
+      <div class="filters" id="filters"></div>
+      <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Søg del, butik eller kategori…" /></label>
+      <button id="reset" class="ghost">Nulstil købte</button>
+    </section>
+
+    <section class="legend">
+      <span><i class="dot buy"></i>Køb i rækkefølge</span>
+      <span><i class="dot conditional"></i>Afhænger af valg</span>
+      <span><i class="dot later"></i>Køb senere</span>
+      <span><i class="dot hold"></i>Afvent måling</span>
+    </section>
+
+    <section id="products" class="products"></section>
+  </main>
+
+  <footer>
+    <p>Priser kan ændre sig. DKK-beløb er omtrentlige og kan ekskludere fragt, import og montering.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
