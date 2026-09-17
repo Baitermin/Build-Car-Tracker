@@ -1,13 +1,20 @@
 {
   "exhaust": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
-  "diffuser": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
+  "diffuser": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
   "front-splitter": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
   "side-skirts": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
   "rgbw-drl": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
   "underglow": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
-  "calipers": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
+  "calipers": { "fit": "contain", "background": "light", "padding": 6, "position": "center center" },
   "strut-brace": { "fit": "contain", "background": "light", "padding": 10, "position": "center center" },
   "engine-cover": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
   "suspension": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
-  "livery": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" }
+  "livery": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
+  "v-brace": { "fit": "contain", "background": "light", "padding": 12, "position": "center center" },
+  "pedals": { "fit": "contain", "background": "light", "padding": 12, "position": "center center" },
+  "handbrake": { "fit": "contain", "background": "light", "padding": 10, "position": "center center" },
+  "interior-trim": { "fit": "contain", "background": "light", "padding": 8, "position": "center center" },
+  "puddle-lights": { "fit": "contain", "background": "light", "padding": 10, "position": "center center" },
+  "door-sills": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" },
+  "trunk-panel": { "fit": "contain", "background": "dark", "padding": 0, "position": "center center" }
 }
