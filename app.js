@@ -1,5 +1,5 @@
 const DATA_URL = 'data/products.json';
-const IMAGE_LAYOUT_URL = 'data/image-layout.json';
+const LIVERY_IMAGE_URL = 'data/livery-image.txt';
 const state = {
   products: [],
   filter: 'Alle',
@@ -12,7 +12,7 @@ const labels = { buy:'Køb nu', conditional:'Afhænger af valg', later:'Senere',
 function lowest(p){ return p.offers?.length ? [...p.offers].sort((a,b)=>a.priceDkk-b.priceDkk)[0] : null; }
 function eligible(p){ return p.status !== 'hold' && p.offers?.length; }
 function save(){ localStorage.setItem('baitermin-purchased', JSON.stringify(state.purchased)); }
-function escapeHtml(value=''){ return String(value).replace(/[&<>'\"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c])); }
+function escapeHtml(value=''){ return String(value).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
 function fallbackImage(p){
   const title = escapeHtml(p.name).slice(0,34);
@@ -41,6 +41,12 @@ function renderFilters(){
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ state.filter=b.dataset.cat; renderFilters(); renderProducts(); });
 }
 
+function mediaClasses(image = {}){
+  const fit = image.fit === 'cover' ? 'cover' : 'contain';
+  const background = image.background === 'dark' ? 'dark-media' : 'light-media';
+  return `${fit} ${background}`;
+}
+
 function renderProducts(){
   const q = state.query.trim().toLowerCase();
   const list = state.products
@@ -53,13 +59,12 @@ function renderProducts(){
     const offers=[...(p.offers||[])].sort((a,b)=>a.priceDkk-b.priceDkk).slice(0,3);
     const checked=!!state.purchased[p.id];
     const img=p.image?.url || fallbackImage(p);
-    const fit=p.image?.fit==='cover'?'cover':'contain';
-    const background=p.image?.background==='dark'?'dark-media':'light-media';
-    const padding=Number.isFinite(Number(p.image?.padding)) ? Math.max(0,Math.min(40,Number(p.image.padding))) : (fit==='contain'?12:0);
-    const position=String(p.image?.position || 'center center').replace(/[^a-zA-Z0-9.%\s-]/g,'');
+    const mediaClass = mediaClasses(p.image || {});
+    const padding = Number.isFinite(p.image?.padding) ? `${p.image.padding}px` : '12px';
+    const position = p.image?.position || 'center center';
     return `<article class="product ${checked?'purchased':''}" data-id="${escapeHtml(p.id)}">
       <div class="product-main">
-        <div class="product-media ${fit} ${background}" style="--media-padding:${padding}px;--media-position:${escapeHtml(position)}">
+        <div class="product-media ${mediaClass}" style="--media-padding:${escapeHtml(padding)};--media-position:${escapeHtml(position)};">
           <img src="${escapeHtml(img)}" data-fallback="${escapeHtml(fallbackImage(p))}" alt="${escapeHtml(p.image?.alt || p.name)}" loading="lazy">
           <span class="order-overlay">${String(p.order).padStart(2,'0')}</span>
           <span class="image-source">${escapeHtml(p.image?.source || 'BAITERMIN')}</span>
@@ -85,10 +90,6 @@ function renderProducts(){
     if(img){
       img.addEventListener('error',()=>{
         img.src=img.dataset.fallback;
-        const media=card.querySelector('.product-media');
-        media.classList.remove('light-media');
-        media.classList.add('dark-media','contain');
-        media.style.setProperty('--media-padding','0px');
         card.querySelector('.image-source').textContent='BAITERMIN fallback';
       },{once:true});
     }
@@ -100,17 +101,20 @@ function renderProducts(){
 
 async function init(){
   try{
-    const [res, layoutRes] = await Promise.all([
+    const [res,liveryRes]=await Promise.all([
       fetch(DATA_URL,{cache:'no-store'}),
-      fetch(IMAGE_LAYOUT_URL,{cache:'no-store'}).catch(()=>null)
+      fetch(LIVERY_IMAGE_URL,{cache:'no-store'}).catch(()=>null)
     ]);
     if(!res.ok)throw new Error('Kunne ikke hente produktdata');
     const data=await res.json();
-    let layout={};
-    if(layoutRes?.ok){
-      try{ layout=await layoutRes.json(); }catch(_){ layout={}; }
+    state.products=data.products;
+    if(liveryRes?.ok){
+      const liveryData=(await liveryRes.text()).trim();
+      const livery=state.products.find(p=>p.id==='livery');
+      if(livery && liveryData.startsWith('data:image/')){
+        livery.image={...(livery.image||{}),url:liveryData,source:'BAITERMIN render',fit:'cover',background:'dark',padding:0,position:'center center'};
+      }
     }
-    state.products=data.products.map(p=>layout[p.id] ? ({...p,image:{...(p.image||{}),...layout[p.id]}}) : p);
     document.querySelector('#updated').textContent=`Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
     renderFilters(); renderProducts(); renderStats();
   }catch(err){ document.querySelector('#products').innerHTML=`<div class="empty">${escapeHtml(err.message)}</div>`; }
