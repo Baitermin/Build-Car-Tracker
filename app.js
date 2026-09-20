@@ -3,6 +3,7 @@ const LIVERY_IMAGE_URL = 'assets/products/baitermin-livery-preview.png';
 
 const state = {
   products: [],
+  enricoBuild: null,
   filter: 'Alle',
   statusFilter: 'all',
   sort: localStorage.getItem('baitermin-sort') || 'order',
@@ -386,6 +387,87 @@ function renderOfferRows(offers) {
   }).join('');
 }
 
+function renderEnricoBuild() {
+  const root = document.querySelector('#enricoBuild');
+  const lookRoot = document.querySelector('#enricoLook');
+  const subtitle = document.querySelector('#enricoSubtitle');
+  const confirmedEl = document.querySelector('#enricoConfirmed');
+  const build = state.enricoBuild;
+
+  if (!root || !build) return;
+
+  const items = [...(build.items || [])].sort((a, b) => a.order - b.order);
+  const confirmed = items.filter(item => item.match === 'confirmed').length;
+
+  if (subtitle && build.subtitle) subtitle.textContent = build.subtitle;
+  if (confirmedEl) confirmedEl.textContent = confirmed;
+
+  root.innerHTML = items.map(item => {
+    const offers = [...(item.offers || [])].sort((a, b) => a.priceDkk - b.priceDkk).slice(0, 3);
+    const cheapest = lowest(item);
+    const deal = hasDeal(item);
+    const image = item.image || {};
+    const img = image.url || fallbackImage({ name: item.name, category: 'Enrico' });
+    const mediaClass = mediaClasses(image);
+    const padding = Number.isFinite(image.padding) ? `${image.padding}px` : '8px';
+    const position = image.position || 'center center';
+    const matchClass = item.match === 'confirmed' ? 'confirmed' : 'research';
+
+    return `<article class="enrico-card ${deal ? 'has-deal' : ''}" data-enrico-id="${escapeHtml(item.id)}">
+      <div class="enrico-media ${mediaClass}" style="--media-padding:${escapeHtml(padding)};--media-position:${escapeHtml(position)};">
+        <img src="${escapeHtml(img)}" alt="${escapeHtml(image.alt || item.name)}" loading="lazy">
+        <span class="enrico-order">E${String(item.order).padStart(2, '0')}</span>
+        ${deal ? '<span class="deal-overlay">TILBUD</span>' : ''}
+      </div>
+
+      <div class="enrico-body">
+        <div class="enrico-meta">
+          <span class="match-badge ${matchClass}">${escapeHtml(item.matchLabel || 'Reference')}</span>
+          ${item.monitor ? '<span class="watch-badge">● Overvåges</span>' : ''}
+        </div>
+
+        <h3>${escapeHtml(item.name)}</h3>
+        <p class="enrico-sku">${escapeHtml(item.sku || '')}</p>
+        <p class="enrico-note">${escapeHtml(item.note || '')}</p>
+
+        <div class="enrico-card-spacer"></div>
+
+        ${cheapest ? `<div class="enrico-best">
+          <div>
+            <span>Bedste pris nu</span>
+            <strong>${fmt.format(cheapest.priceDkk)}</strong>
+            <small>${escapeHtml(cheapest.seller)}</small>
+          </div>
+          <a href="${escapeHtml(cheapest.url)}" target="_blank" rel="noopener">Åbn ↗</a>
+        </div>` : `<div class="enrico-searching">
+          <strong>Søger 1:1 match</strong>
+          <span>Ingen gættede produktlinks bliver tilføjet.</span>
+        </div>`}
+
+        ${offers.length ? `<details class="enrico-offers">
+          <summary><span>Se ${offers.length} butikker</span><b>⌄</b></summary>
+          <div class="offer-list">${renderOfferRows(offers)}</div>
+        </details>` : ''}
+      </div>
+    </article>`;
+  }).join('');
+
+  root.querySelectorAll('.enrico-media img').forEach(img => {
+    img.addEventListener('error', () => {
+      const card = img.closest('.enrico-card');
+      const item = items.find(x => x.id === card?.dataset.enricoId);
+      if (!item) return;
+      img.src = fallbackImage({ name: item.name, category: 'Enrico' });
+    }, { once: true });
+  });
+
+  if (lookRoot) {
+    lookRoot.innerHTML = (build.lookDetails || []).map(detail =>
+      `<div class="look-chip"><span>${escapeHtml(detail.label)}</span><strong>${escapeHtml(detail.value)}</strong></div>`
+    ).join('');
+  }
+}
+
 function renderProducts() {
   const q = state.query.trim().toLowerCase();
 
@@ -512,6 +594,7 @@ async function init() {
 
     const data = await res.json();
     state.products = data.products;
+    state.enricoBuild = data.enricoBuild || null;
 
     if (liveryRes?.ok) {
       const livery = state.products.find(p => p.id === 'livery');
@@ -536,6 +619,7 @@ async function init() {
 
     renderFilters();
     renderStatusFilters();
+    renderEnricoBuild();
     renderProducts();
     renderStats();
   } catch (err) {
