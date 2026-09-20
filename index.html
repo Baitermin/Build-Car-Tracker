@@ -13,7 +13,7 @@
     <div>
       <p class="eyebrow">BMW F20 LCI • BAITERMIN BUILD</p>
       <h1>Build Tracker</h1>
-      <p class="sub">3 tilbud pr. del, laveste pris automatisk fremhævet, købte dele gemmes på din enhed.</p>
+      <p class="sub">Se hvad der skal købes først, find aktive tilbud hurtigt og hold styr på hvilke mods der allerede er købt.</p>
     </div>
     <div class="updated" id="updated">Opdateret —</div>
   </header>
@@ -26,24 +26,56 @@
       <article><span>Fremdrift</span><strong id="progress">—</strong><small id="progressDetail">—</small></article>
     </section>
 
-    <section class="controls">
-      <div class="filters" id="filters"></div>
-      <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Søg del, butik eller kategori…" /></label>
-      <button id="reset" class="ghost">Nulstil købte</button>
+    <section class="planner" aria-label="Find mods">
+      <div class="planner-head">
+        <div>
+          <p class="section-kicker">HURTIGT OVERBLIK</p>
+          <h2>Hvad vil du finde?</h2>
+        </div>
+        <p id="resultMeta" class="result-meta">—</p>
+      </div>
+
+      <div class="status-filters" id="statusFilters"></div>
+
+      <div class="toolbar">
+        <label class="search">
+          <span>⌕</span>
+          <input id="search" type="search" placeholder="Søg del, butik eller kategori…" />
+        </label>
+
+        <label class="sort-control">
+          <span>Sortér</span>
+          <select id="sort">
+            <option value="priority">Køb først</option>
+            <option value="order">Build-rækkefølge</option>
+            <option value="deal">Tilbud først</option>
+            <option value="price-asc">Pris: lav → høj</option>
+            <option value="price-desc">Pris: høj → lav</option>
+          </select>
+        </label>
+
+        <button id="reset" class="ghost">Nulstil købte</button>
+      </div>
+
+      <div class="category-row">
+        <span class="category-label">Kategori</span>
+        <div class="filters" id="filters"></div>
+      </div>
     </section>
 
     <section class="legend">
-      <span><i class="dot buy"></i>Køb i rækkefølge</span>
+      <span><i class="dot buy"></i>Køb nu</span>
+      <span><i class="dot deal"></i>På tilbud</span>
       <span><i class="dot conditional"></i>Afhænger af valg</span>
       <span><i class="dot later"></i>Køb senere</span>
-      <span><i class="dot hold"></i>Afvent måling</span>
+      <span><i class="dot hold"></i>Afvent</span>
     </section>
 
     <section id="products" class="products"></section>
   </main>
 
   <footer>
-    <p>Priser kan ændre sig. DKK-beløb er omtrentlige og kan ekskludere fragt, import og montering.</p>
+    <p>“På tilbud” vises kun når et tilbud i dataene er markeret som tilbud/rabat. Priser kan ændre sig og kan ekskludere fragt, import og montering.</p>
   </footer>
 
   <script src="app.js"></script>
