@@ -5,15 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090a0d" />
   <title>BAITERMIN Build Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260920-grid2" />
 </head>
 <body>
   <div class="noise"></div>
+
   <header class="hero">
     <div>
       <p class="eyebrow">BMW F20 LCI • BAITERMIN BUILD</p>
       <h1>Build Tracker</h1>
-      <p class="sub">Se hvad der skal købes først, find aktive tilbud hurtigt og hold styr på hvilke mods der allerede er købt.</p>
+      <p class="sub">Find næste mod hurtigt, se tilbud og hold styr på hvad der allerede er købt.</p>
     </div>
     <div class="updated" id="updated">Opdateret —</div>
   </header>
@@ -29,8 +30,8 @@
     <section class="planner" aria-label="Find mods">
       <div class="planner-head">
         <div>
-          <p class="section-kicker">HURTIGT OVERBLIK</p>
-          <h2>Hvad vil du finde?</h2>
+          <p class="section-kicker">FIND NÆSTE MOD</p>
+          <h2>Filtrér og sortér</h2>
         </div>
         <p id="resultMeta" class="result-meta">—</p>
       </div>
@@ -40,7 +41,7 @@
       <div class="toolbar">
         <label class="search">
           <span>⌕</span>
-          <input id="search" type="search" placeholder="Søg del, butik eller kategori…" />
+          <input id="search" type="search" placeholder="Søg mod, butik eller kategori…" />
         </label>
 
         <label class="sort-control">
@@ -67,17 +68,17 @@
       <span><i class="dot buy"></i>Køb nu</span>
       <span><i class="dot deal"></i>På tilbud</span>
       <span><i class="dot conditional"></i>Afhænger af valg</span>
-      <span><i class="dot later"></i>Køb senere</span>
+      <span><i class="dot later"></i>Senere</span>
       <span><i class="dot hold"></i>Afvent</span>
     </section>
 
-    <section id="products" class="products"></section>
+    <section id="products" class="products" aria-live="polite"></section>
   </main>
 
   <footer>
-    <p>“På tilbud” vises kun når et tilbud i dataene er markeret som tilbud/rabat. Priser kan ændre sig og kan ekskludere fragt, import og montering.</p>
+    <p>“På tilbud” vises kun når tilbudsdata er markeret som tilbud/rabat. Priser kan ændre sig og kan ekskludere fragt, import og montering.</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260920-grid2" defer></script>
 </body>
 </html>
