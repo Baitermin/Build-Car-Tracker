@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090a0d" />
   <title>BAITERMIN Build Tracker</title>
-  <link rel="stylesheet" href="styles.css?v=20260920-sortmenu1" />
+  <link rel="stylesheet" href="styles.css?v=20260920-enrico1" />
 </head>
 <body>
   <div class="noise"></div>
@@ -25,6 +25,30 @@
       <article><span>Købt</span><strong id="totalBought">—</strong><small>markerede dele</small></article>
       <article class="accent"><span>Tilbage</span><strong id="totalRemaining">—</strong><small>laveste aktuelle priser</small></article>
       <article><span>Fremdrift</span><strong id="progress">—</strong><small id="progressDetail">—</small></article>
+    </section>
+
+    <section class="reference-build" aria-labelledby="enricoTitle">
+      <div class="reference-build-head">
+        <div>
+          <p class="section-kicker">REFERENCE BUILD</p>
+          <h2 id="enricoTitle">Enrico's BMW build</h2>
+          <p id="enricoSubtitle" class="reference-sub">Identificerede dele fra videoen – holdt separat fra dit BAITERMIN build.</p>
+        </div>
+        <div class="reference-summary">
+          <span id="enricoConfirmed">—</span>
+          <small>bekræftede dele</small>
+        </div>
+      </div>
+
+      <div id="enricoBuild" class="enrico-grid" aria-live="polite"></div>
+
+      <div class="enrico-look-wrap">
+        <div class="enrico-look-head">
+          <span>Visuelle detaljer fra bilen</span>
+          <small>Ikke alle er identificeret til præcis producent/model endnu</small>
+        </div>
+        <div id="enricoLook" class="enrico-look"></div>
+      </div>
     </section>
 
     <section class="planner" aria-label="Find mods">
@@ -54,7 +78,7 @@
             aria-expanded="false"
             aria-controls="sortMenu"
           >
-            <span id="sortButtonText">Køb først</span>
+            <span id="sortButtonText">Build-rækkefølge</span>
             <svg class="sort-chevron" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M5 7.5 10 12.5 15 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -108,6 +132,6 @@
     <p>“På tilbud” vises kun når tilbudsdata er markeret som tilbud/rabat. Priser kan ændre sig og kan ekskludere fragt, import og montering.</p>
   </footer>
 
-  <script src="app.js?v=20260920-sortmenu1" defer></script>
+  <script src="app.js?v=20260920-enrico1" defer></script>
 </body>
 </html>
