@@ -5,7 +5,7 @@ const state = {
   products: [],
   filter: 'Alle',
   statusFilter: 'all',
-  sort: localStorage.getItem('baitermin-sort') || 'priority',
+  sort: localStorage.getItem('baitermin-sort') || 'order',
   query: '',
   purchased: JSON.parse(localStorage.getItem('baitermin-purchased') || '{}')
 };
@@ -531,7 +531,7 @@ async function init() {
     document.querySelector('#updated').textContent =
       `Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
 
-    if (!sortLabels[state.sort]) state.sort = 'priority';
+    if (!sortLabels[state.sort]) state.sort = 'order';
     syncSortMenu();
 
     renderFilters();
