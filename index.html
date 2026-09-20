@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#090a0d" />
   <title>BAITERMIN Build Tracker</title>
-  <link rel="stylesheet" href="styles.css?v=20260920-grid2" />
+  <link rel="stylesheet" href="styles.css?v=20260920-sortmenu1" />
 </head>
 <body>
   <div class="noise"></div>
@@ -44,16 +44,45 @@
           <input id="search" type="search" placeholder="Søg mod, butik eller kategori…" />
         </label>
 
-        <label class="sort-control">
-          <span>Sortér</span>
-          <select id="sort">
-            <option value="priority">Køb først</option>
-            <option value="order">Build-rækkefølge</option>
-            <option value="deal">Tilbud først</option>
-            <option value="price-asc">Pris: lav → høj</option>
-            <option value="price-desc">Pris: høj → lav</option>
-          </select>
-        </label>
+        <div class="sort-control custom-select" id="sortControl">
+          <span class="sort-label">Sortér</span>
+          <button
+            type="button"
+            id="sortButton"
+            class="sort-button"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="sortMenu"
+          >
+            <span id="sortButtonText">Køb først</span>
+            <svg class="sort-chevron" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M5 7.5 10 12.5 15 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div id="sortMenu" class="sort-menu" role="listbox" aria-label="Sortér mods" hidden>
+            <button type="button" role="option" data-sort="priority">
+              <span class="sort-option-copy"><strong>Køb først</strong><small>Prioriter aktive mods</small></span>
+              <span class="sort-check">✓</span>
+            </button>
+            <button type="button" role="option" data-sort="order">
+              <span class="sort-option-copy"><strong>Build-rækkefølge</strong><small>#01 → #18</small></span>
+              <span class="sort-check">✓</span>
+            </button>
+            <button type="button" role="option" data-sort="deal">
+              <span class="sort-option-copy"><strong>Tilbud først</strong><small>Mods med tilbud øverst</small></span>
+              <span class="sort-check">✓</span>
+            </button>
+            <button type="button" role="option" data-sort="price-asc">
+              <span class="sort-option-copy"><strong>Pris: lav → høj</strong><small>Billigste mods først</small></span>
+              <span class="sort-check">✓</span>
+            </button>
+            <button type="button" role="option" data-sort="price-desc">
+              <span class="sort-option-copy"><strong>Pris: høj → lav</strong><small>Dyreste mods først</small></span>
+              <span class="sort-check">✓</span>
+            </button>
+          </div>
+        </div>
 
         <button id="reset" class="ghost">Nulstil købte</button>
       </div>
@@ -79,6 +108,6 @@
     <p>“På tilbud” vises kun når tilbudsdata er markeret som tilbud/rabat. Priser kan ændre sig og kan ekskludere fragt, import og montering.</p>
   </footer>
 
-  <script src="app.js?v=20260920-grid2" defer></script>
+  <script src="app.js?v=20260920-sortmenu1" defer></script>
 </body>
 </html>
