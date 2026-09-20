@@ -5,7 +5,7 @@ const state = {
   products: [],
   filter: 'Alle',
   statusFilter: 'all',
-  sort: 'priority',
+  sort: localStorage.getItem('baitermin-sort') || 'priority',
   query: '',
   purchased: JSON.parse(localStorage.getItem('baitermin-purchased') || '{}')
 };
@@ -13,7 +13,7 @@ const state = {
 const fmt = new Intl.NumberFormat('da-DK', {
   style: 'currency',
   currency: 'DKK',
-  minimumFractionDigits: 2
+  minimumFractionDigits: 0
 });
 
 const labels = {
@@ -21,6 +21,14 @@ const labels = {
   conditional: 'Afhænger af valg',
   later: 'Senere',
   hold: 'Afvent'
+};
+
+const sortLabels = {
+  priority: 'Køb først',
+  order: 'Build-rækkefølge',
+  deal: 'Tilbud først',
+  'price-asc': 'Pris: lav → høj',
+  'price-desc': 'Pris: høj → lav'
 };
 
 const statusButtons = [
@@ -107,28 +115,29 @@ function renderFilters() {
       ? state.products.length
       : state.products.filter(p => p.category === c).length;
 
-    return `<button data-cat="${escapeHtml(c)}" class="${state.filter === c ? 'active' : ''}">
+    return `<button type="button" data-cat="${escapeHtml(c)}" class="${state.filter === c ? 'active' : ''}">
       ${escapeHtml(c)} <span>${count}</span>
     </button>`;
   }).join('');
 
   el.querySelectorAll('button').forEach(b => {
-    b.onclick = () => {
+    b.addEventListener('click', () => {
       state.filter = b.dataset.cat;
       renderFilters();
       renderProducts();
-    };
+    });
   });
 }
 
 function countForStatus(key) {
   return state.products.filter(p => {
+    const bought = !!state.purchased[p.id];
     if (key === 'all') return true;
-    if (key === 'buy') return p.status === 'buy' && !state.purchased[p.id];
-    if (key === 'deal') return hasDeal(p) && !state.purchased[p.id];
-    if (key === 'unpurchased') return !state.purchased[p.id];
-    if (key === 'purchased') return !!state.purchased[p.id];
-    if (key === 'later') return p.status === 'later' && !state.purchased[p.id];
+    if (key === 'buy') return p.status === 'buy' && !bought;
+    if (key === 'deal') return hasDeal(p) && !bought;
+    if (key === 'unpurchased') return !bought;
+    if (key === 'purchased') return bought;
+    if (key === 'later') return p.status === 'later' && !bought;
     if (key === 'hold') return p.status === 'hold';
     return true;
   }).length;
@@ -138,17 +147,17 @@ function renderStatusFilters() {
   const el = document.querySelector('#statusFilters');
 
   el.innerHTML = statusButtons.map(([key, label]) =>
-    `<button data-status="${key}" class="${state.statusFilter === key ? 'active' : ''}">
+    `<button type="button" data-status="${key}" class="${state.statusFilter === key ? 'active' : ''}">
       <span>${label}</span><b>${countForStatus(key)}</b>
     </button>`
   ).join('');
 
   el.querySelectorAll('button').forEach(b => {
-    b.onclick = () => {
+    b.addEventListener('click', () => {
       state.statusFilter = b.dataset.status;
       renderStatusFilters();
       renderProducts();
-    };
+    });
   });
 }
 
@@ -172,28 +181,83 @@ function matchesStatus(p) {
   }
 }
 
-function sortProducts(a, b) {
+function comparePrices(a, b, direction = 1) {
+  const ap = lowest(a)?.priceDkk;
+  const bp = lowest(b)?.priceDkk;
+  const aMissing = !Number.isFinite(ap);
+  const bMissing = !Number.isFinite(bp);
+
+  if (aMissing && bMissing) return a.order - b.order;
+  if (aMissing) return 1;
+  if (bMissing) return -1;
+
+  return (ap - bp) * direction || a.order - b.order;
+}
+
+function priorityCompare(a, b) {
   const aBought = !!state.purchased[a.id];
   const bBought = !!state.purchased[b.id];
-
-  if (state.sort === 'order') return a.order - b.order;
-
-  if (state.sort === 'deal') {
-    const d = Number(hasDeal(b)) - Number(hasDeal(a));
-    return d || a.order - b.order;
-  }
-
-  const ap = lowest(a)?.priceDkk ?? Number.POSITIVE_INFINITY;
-  const bp = lowest(b)?.priceDkk ?? Number.POSITIVE_INFINITY;
-
-  if (state.sort === 'price-asc') return ap - bp || a.order - b.order;
-  if (state.sort === 'price-desc') return bp - ap || a.order - b.order;
-
   const statusRank = { buy: 0, conditional: 1, later: 2, hold: 3 };
+
   return Number(aBought) - Number(bBought)
     || (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9)
     || Number(hasDeal(b)) - Number(hasDeal(a))
     || a.order - b.order;
+}
+
+function sortProducts(a, b) {
+  switch (state.sort) {
+    case 'order':
+      return a.order - b.order;
+
+    case 'deal': {
+      const aDeal = hasDeal(a);
+      const bDeal = hasDeal(b);
+      if (aDeal !== bDeal) return Number(bDeal) - Number(aDeal);
+
+      if (aDeal && bDeal) {
+        const ad = Math.min(...dealOffers(a).map(o => o.priceDkk));
+        const bd = Math.min(...dealOffers(b).map(o => o.priceDkk));
+        return ad - bd || a.order - b.order;
+      }
+
+      return priorityCompare(a, b);
+    }
+
+    case 'price-asc':
+      return comparePrices(a, b, 1);
+
+    case 'price-desc':
+      return comparePrices(a, b, -1);
+
+    case 'priority':
+    default:
+      return priorityCompare(a, b);
+  }
+}
+
+function renderOfferRows(offers) {
+  return offers.map((o, i) => {
+    const offerDeal = isDealOffer(o);
+
+    return `<div class="offer-row ${i === 0 ? 'best' : ''} ${offerDeal ? 'deal-offer' : ''}">
+      <div class="offer-copy">
+        <div class="offer-topline">
+          <strong>${escapeHtml(o.seller)}</strong>
+          ${i === 0 ? '<span class="mini-badge cheapest">Lavest</span>' : ''}
+          ${offerDeal ? '<span class="mini-badge sale">Tilbud</span>' : ''}
+        </div>
+        <span>${escapeHtml(o.tag || '')}</span>
+      </div>
+
+      <div class="offer-price">
+        <strong>${fmt.format(o.priceDkk)}</strong>
+        <small>${escapeHtml(o.priceNative)}</small>
+      </div>
+
+      <a href="${escapeHtml(o.url)}" target="_blank" rel="noopener">Åbn ↗</a>
+    </div>`;
+  }).join('');
 }
 
 function renderProducts() {
@@ -208,7 +272,7 @@ function renderProducts() {
   const meta = document.querySelector('#resultMeta');
   if (meta) {
     const deals = list.filter(hasDeal).length;
-    meta.textContent = `${list.length} mods vist${deals ? ` • ${deals} med tilbud` : ''}`;
+    meta.textContent = `${list.length} mods • ${deals} tilbud • ${sortLabels[state.sort] || 'Sorteret'}`;
   }
 
   const root = document.querySelector('#products');
@@ -235,48 +299,52 @@ function renderProducts() {
     const cheapest = lowest(p);
 
     return `<article class="product ${checked ? 'purchased' : ''} ${deal ? 'has-deal' : ''}" data-id="${escapeHtml(p.id)}">
-      <div class="product-main">
-        <div class="product-media ${mediaClass}" style="--media-padding:${escapeHtml(padding)};--media-position:${escapeHtml(position)};">
-          <img src="${escapeHtml(img)}" data-fallback="${escapeHtml(fallbackImage(p))}" alt="${escapeHtml(p.image?.alt || p.name)}" loading="lazy">
-          <span class="order-overlay">#${String(p.order).padStart(2, '0')}</span>
-          ${deal ? '<span class="deal-overlay">TILBUD</span>' : ''}
-          <span class="image-source">${escapeHtml(p.image?.source || 'BAITERMIN')}</span>
+      <div class="product-media ${mediaClass}" style="--media-padding:${escapeHtml(padding)};--media-position:${escapeHtml(position)};">
+        <img src="${escapeHtml(img)}" data-fallback="${escapeHtml(fallbackImage(p))}" alt="${escapeHtml(p.image?.alt || p.name)}" loading="lazy">
+        <span class="order-overlay">#${String(p.order).padStart(2, '0')}</span>
+        ${deal ? '<span class="deal-overlay">TILBUD</span>' : ''}
+        <span class="image-source">${escapeHtml(p.image?.source || 'BAITERMIN')}</span>
+      </div>
+
+      <div class="product-body">
+        <div class="product-top">
+          <p class="category">${escapeHtml(p.category)}</p>
+          <div class="badges">
+            <span class="badge ${p.status}">${labels[p.status]}</span>
+            ${deal ? '<span class="badge deal-badge">På tilbud</span>' : ''}
+          </div>
         </div>
 
-        <div class="product-body">
-          <div class="product-head">
-            <div>
-              <p class="category">${escapeHtml(p.category)}</p>
-              <div class="title-row">
-                <h2>${escapeHtml(p.name)}</h2>
-                <span class="badge ${p.status}">${labels[p.status]}</span>
-                ${deal ? '<span class="badge deal-badge">På tilbud</span>' : ''}
-              </div>
-              <p class="note">${escapeHtml(p.note)}</p>
-              ${cheapest ? `<p class="quick-price">Fra <strong>${fmt.format(cheapest.priceDkk)}</strong> hos ${escapeHtml(cheapest.seller)}</p>` : ''}
-            </div>
+        <h2>${escapeHtml(p.name)}</h2>
+        <p class="note">${escapeHtml(p.note)}</p>
 
-            <label class="buycheck">
-              <input type="checkbox" ${checked ? 'checked' : ''} ${p.status === 'hold' ? 'disabled' : ''}>
-              <span>${checked ? 'Købt' : 'Markér købt'}</span>
-            </label>
+        <div class="card-spacer"></div>
+
+        ${cheapest ? `<div class="best-price">
+          <div>
+            <span>Bedste pris</span>
+            <strong>${fmt.format(cheapest.priceDkk)}</strong>
+            <small>${escapeHtml(cheapest.seller)}</small>
           </div>
+          <a href="${escapeHtml(cheapest.url)}" target="_blank" rel="noopener">Åbn billigste ↗</a>
+        </div>` : `<div class="best-price no-price">
+          <div>
+            <span>Pris</span>
+            <strong>Afventer</strong>
+            <small>Ingen aktiv pris endnu</small>
+          </div>
+        </div>`}
 
-          ${offers.length
-            ? `<div class="offers">${offers.map((o, i) => {
-                const offerDeal = isDealOffer(o);
-                return `<div class="offer ${i === 0 ? 'best' : ''} ${offerDeal ? 'deal-offer' : ''}">
-                  <div class="offer-topline">
-                    <div class="seller">${escapeHtml(o.seller)}</div>
-                    ${offerDeal ? '<span class="offer-sale">TILBUD</span>' : ''}
-                  </div>
-                  <div class="price">${fmt.format(o.priceDkk)}</div>
-                  <div class="native">${escapeHtml(o.priceNative)}</div>
-                  <div class="tag">${escapeHtml(o.tag || '')}</div>
-                  <a href="${escapeHtml(o.url)}" target="_blank" rel="noopener">Åbn tilbud ↗</a>
-                </div>`;
-              }).join('')}</div>`
-            : '<div class="empty">Ingen tilbud endnu — denne del står med vilje på pause.</div>'}
+        <div class="card-actions">
+          <label class="buycheck ${checked ? 'checked' : ''}">
+            <input type="checkbox" ${checked ? 'checked' : ''} ${p.status === 'hold' ? 'disabled' : ''}>
+            <span>${checked ? '✓ Købt' : 'Markér som købt'}</span>
+          </label>
+
+          ${offers.length ? `<details class="offer-drawer">
+            <summary><span>Se ${offers.length} tilbud</span><b>⌄</b></summary>
+            <div class="offer-list">${renderOfferRows(offers)}</div>
+          </details>` : ''}
         </div>
       </div>
     </article>`;
@@ -296,21 +364,22 @@ function renderProducts() {
     const input = card.querySelector('input[type=checkbox]');
     if (!input || input.disabled) return;
 
-    input.onchange = () => {
+    input.addEventListener('change', () => {
       state.purchased[product.id] = input.checked;
       save();
       renderStatusFilters();
       renderProducts();
       renderStats();
-    };
+    });
   });
 }
 
 async function init() {
   try {
+    const cacheKey = Date.now();
     const [res, liveryRes] = await Promise.all([
-      fetch(DATA_URL, { cache: 'no-store' }),
-      fetch(LIVERY_IMAGE_URL, { cache: 'no-store' }).catch(() => null)
+      fetch(`${DATA_URL}?v=${cacheKey}`, { cache: 'no-store' }),
+      fetch(`${LIVERY_IMAGE_URL}?v=${cacheKey}`, { cache: 'no-store' }).catch(() => null)
     ]);
 
     if (!res.ok) throw new Error('Kunne ikke hente produktdata');
@@ -336,6 +405,10 @@ async function init() {
     document.querySelector('#updated').textContent =
       `Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
 
+    const sortEl = document.querySelector('#sort');
+    if (!sortLabels[state.sort]) state.sort = 'priority';
+    sortEl.value = state.sort;
+
     renderFilters();
     renderStatusFilters();
     renderProducts();
@@ -353,10 +426,11 @@ document.querySelector('#search').addEventListener('input', e => {
 
 document.querySelector('#sort').addEventListener('change', e => {
   state.sort = e.target.value;
+  localStorage.setItem('baitermin-sort', state.sort);
   renderProducts();
 });
 
-document.querySelector('#reset').onclick = () => {
+document.querySelector('#reset').addEventListener('click', () => {
   if (confirm('Nulstil alle markeringer som købt?')) {
     state.purchased = {};
     save();
@@ -364,6 +438,6 @@ document.querySelector('#reset').onclick = () => {
     renderProducts();
     renderStats();
   }
-};
+});
 
 init();
