@@ -387,6 +387,19 @@ function renderOfferRows(offers) {
   }).join('');
 }
 
+
+function ensureEnricoAtBottom() {
+  const products = document.querySelector('#products');
+  const reference = document.querySelector('.reference-build');
+  if (!products || !reference) return;
+
+  // Keep Enrico's reference build directly after the complete BAITERMIN product grid,
+  // even if an older cached HTML version placed it near the top of the page.
+  if (products.nextElementSibling !== reference) {
+    products.insertAdjacentElement('afterend', reference);
+  }
+}
+
 function renderEnricoBuild() {
   const root = document.querySelector('#enricoBuild');
   const lookRoot = document.querySelector('#enricoLook');
@@ -617,10 +630,12 @@ async function init() {
     if (!sortLabels[state.sort]) state.sort = 'order';
     syncSortMenu();
 
+    ensureEnricoAtBottom();
     renderFilters();
     renderStatusFilters();
     renderEnricoBuild();
     renderProducts();
+    ensureEnricoAtBottom();
     renderStats();
   } catch (err) {
     document.querySelector('#products').innerHTML =
@@ -643,5 +658,6 @@ document.querySelector('#reset').addEventListener('click', () => {
   }
 });
 
+ensureEnricoAtBottom();
 setupSortMenu();
 init();
