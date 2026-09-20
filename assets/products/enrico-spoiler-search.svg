@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#171a22"/>
+      <stop offset="1" stop-color="#08090c"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#8f692f"/>
+      <stop offset=".5" stop-color="#e0b766"/>
+      <stop offset="1" stop-color="#8f692f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <text x="72" y="105" fill="#e0b766" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="7">ENRICO BUILD RESEARCH</text>
+  <text x="72" y="165" fill="#f5f5f2" font-family="Arial,sans-serif" font-size="50" font-weight="800">ROOF SPOILER / WING</text>
+  <g transform="translate(180 280)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 265 C220 215, 600 215, 760 265" stroke="#4a4f59" stroke-width="22"/>
+    <path d="M170 185 C265 135, 580 135, 675 185" stroke="url(#gold)" stroke-width="18"/>
+    <path d="M245 185 L210 250 M595 185 L630 250" stroke="#e0b766" stroke-width="15"/>
+    <path d="M155 180 C250 100, 605 100, 690 180" stroke="#e0b766" stroke-opacity=".38" stroke-width="5" stroke-dasharray="12 14"/>
+  </g>
+  <circle cx="985" cy="210" r="66" fill="#111319" stroke="#e0b766" stroke-width="4"/>
+  <text x="985" y="235" text-anchor="middle" fill="#e0b766" font-family="Arial,sans-serif" font-size="72" font-weight="900">?</text>
+  <text x="72" y="710" fill="#999da8" font-family="Arial,sans-serif" font-size="24">Exact model not identified yet • no guessed product links</text>
+</svg>
