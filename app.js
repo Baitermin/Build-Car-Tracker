@@ -236,6 +236,132 @@ function sortProducts(a, b) {
   }
 }
 
+function syncSortMenu() {
+  const buttonText = document.querySelector('#sortButtonText');
+  const options = [...document.querySelectorAll('#sortMenu [data-sort]')];
+
+  if (buttonText) {
+    buttonText.textContent = sortLabels[state.sort] || sortLabels.priority;
+  }
+
+  options.forEach(option => {
+    const active = option.dataset.sort === state.sort;
+    option.classList.toggle('active', active);
+    option.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+}
+
+function closeSortMenu({ focusButton = false } = {}) {
+  const control = document.querySelector('#sortControl');
+  const button = document.querySelector('#sortButton');
+  const menu = document.querySelector('#sortMenu');
+
+  if (!control || !button || !menu) return;
+
+  control.classList.remove('open');
+  button.setAttribute('aria-expanded', 'false');
+  menu.hidden = true;
+
+  if (focusButton) button.focus();
+}
+
+function openSortMenu() {
+  const control = document.querySelector('#sortControl');
+  const button = document.querySelector('#sortButton');
+  const menu = document.querySelector('#sortMenu');
+
+  if (!control || !button || !menu) return;
+
+  control.classList.add('open');
+  button.setAttribute('aria-expanded', 'true');
+  menu.hidden = false;
+  syncSortMenu();
+
+  const active = menu.querySelector('[data-sort].active') || menu.querySelector('[data-sort]');
+  active?.focus();
+}
+
+function setSort(value) {
+  if (!sortLabels[value]) return;
+
+  state.sort = value;
+  localStorage.setItem('baitermin-sort', state.sort);
+  syncSortMenu();
+  renderProducts();
+  closeSortMenu();
+}
+
+function setupSortMenu() {
+  const control = document.querySelector('#sortControl');
+  const button = document.querySelector('#sortButton');
+  const menu = document.querySelector('#sortMenu');
+
+  if (!control || !button || !menu) return;
+
+  button.addEventListener('click', event => {
+    event.stopPropagation();
+
+    if (menu.hidden) {
+      openSortMenu();
+    } else {
+      closeSortMenu();
+    }
+  });
+
+  menu.querySelectorAll('[data-sort]').forEach(option => {
+    option.addEventListener('click', event => {
+      event.stopPropagation();
+      setSort(option.dataset.sort);
+      button.focus();
+    });
+  });
+
+  control.addEventListener('keydown', event => {
+    const options = [...menu.querySelectorAll('[data-sort]')];
+    const current = document.activeElement;
+    const index = options.indexOf(current);
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeSortMenu({ focusButton: true });
+      return;
+    }
+
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && menu.hidden) {
+      event.preventDefault();
+      openSortMenu();
+      return;
+    }
+
+    if (!menu.hidden && event.key === 'ArrowDown') {
+      event.preventDefault();
+      options[(index + 1 + options.length) % options.length]?.focus();
+    }
+
+    if (!menu.hidden && event.key === 'ArrowUp') {
+      event.preventDefault();
+      options[(index - 1 + options.length) % options.length]?.focus();
+    }
+
+    if (!menu.hidden && event.key === 'Home') {
+      event.preventDefault();
+      options[0]?.focus();
+    }
+
+    if (!menu.hidden && event.key === 'End') {
+      event.preventDefault();
+      options[options.length - 1]?.focus();
+    }
+  });
+
+  document.addEventListener('click', event => {
+    if (!control.contains(event.target)) closeSortMenu();
+  });
+
+  window.addEventListener('blur', () => closeSortMenu());
+  syncSortMenu();
+}
+
 function renderOfferRows(offers) {
   return offers.map((o, i) => {
     const offerDeal = isDealOffer(o);
@@ -405,9 +531,8 @@ async function init() {
     document.querySelector('#updated').textContent =
       `Opdateret ${new Date(data.updatedAt).toLocaleString('da-DK')}`;
 
-    const sortEl = document.querySelector('#sort');
     if (!sortLabels[state.sort]) state.sort = 'priority';
-    sortEl.value = state.sort;
+    syncSortMenu();
 
     renderFilters();
     renderStatusFilters();
@@ -424,12 +549,6 @@ document.querySelector('#search').addEventListener('input', e => {
   renderProducts();
 });
 
-document.querySelector('#sort').addEventListener('change', e => {
-  state.sort = e.target.value;
-  localStorage.setItem('baitermin-sort', state.sort);
-  renderProducts();
-});
-
 document.querySelector('#reset').addEventListener('click', () => {
   if (confirm('Nulstil alle markeringer som købt?')) {
     state.purchased = {};
@@ -440,4 +559,5 @@ document.querySelector('#reset').addEventListener('click', () => {
   }
 });
 
+setupSortMenu();
 init();
